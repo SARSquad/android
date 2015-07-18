@@ -5,6 +5,7 @@ import android.content.Context;
 import android.widget.Toast;
 
 import com.parse.Parse;
+import com.parse.ParseObject;
 
 /**
  * Created by CHRIS on 7/18/2015.
@@ -18,6 +19,8 @@ public class SARAssist extends Application {
         super.onCreate();
 
         sContext = this;
+
+        ParseObject.registerSubclass(SearchArea.class);
 
         // Enable Local Datastore.
         Parse.enableLocalDatastore(this);
