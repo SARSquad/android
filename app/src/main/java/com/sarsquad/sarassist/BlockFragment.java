@@ -62,12 +62,12 @@ public class BlockFragment extends Fragment {
         Block.getQuery()
                 .whereEqualTo(ParseConsts.Block.SearchAreaID, mSearchArea.getSearchAreaID())
                 .orderByAscending(ParseConsts.Block.Row)
-                .orderByAscending(ParseConsts.Block.Column)
                 .findInBackground(new FindCallback<Block>() {
                     @Override
                     public void done(List<Block> blocksReturned, ParseException e) {
                         if(e == null){
                             int rowNumber = blocksReturned.get(0).getRow();
+                            int largestRow = blocksReturned.get(blocksReturned.size()-1).getRow();
                             BlockRow blockRow = new BlockRow();
                             for(Block block : blocksReturned){
                                 if(rowNumber == block.getRow()){
@@ -78,9 +78,11 @@ public class BlockFragment extends Fragment {
                                     blockRow = new BlockRow();
                                     blockRow.addBlock(block);
                                 }
-                            }
 
-                            blockAdapter.addAll(rows);
+                            }
+                            rows.add(blockRow);
+
+
                             blockAdapter.notifyDataSetChanged();
                         } else {
                             e.printStackTrace();

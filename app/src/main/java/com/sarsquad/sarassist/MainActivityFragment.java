@@ -31,6 +31,13 @@ public class MainActivityFragment extends Fragment {
 
     Location tempLocation;
 
+    public static MainActivityFragment newInstance(){
+        MainActivityFragment fragment = new MainActivityFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
 
 
     public MainActivityFragment() {
@@ -80,10 +87,9 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 //Navigate to next page
-                SARAssist.makeToastShort("Clicked");
                 getActivity().getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.fragment, BlockFragment.newInstance(searchAreas.get(position), tempLocation))
+                        .replace(R.id.container, BlockFragment.newInstance(searchAreas.get(position), tempLocation))
                         .addToBackStack("home")
                         .commit();
             }
