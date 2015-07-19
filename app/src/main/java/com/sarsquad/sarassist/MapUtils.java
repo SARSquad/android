@@ -21,7 +21,7 @@ public class MapUtils {
     public static final double DefaultLatitude = 39.1866;
     public static final double DefaultLongitude = -96.581;
 
-    public static final float BathroomZoomLevel = 18;
+    public static final float MarkerZoomLevel = 18;
     public static final float DefaultZoomLevel = 15;
     public static final float LocationZoomLevel = DefaultZoomLevel;
 
@@ -50,13 +50,22 @@ public class MapUtils {
                 .icon( BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE) );
     }
 
-    public static void focusOnBathroomLocation( GoogleMap map, Location bathroomLocation )
+    public static void focusOnMarkerLocation(GoogleMap map, Location parkLocation)
     {
         CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target( new LatLng( bathroomLocation.getLatitude(), bathroomLocation.getLongitude() ) )
-                .zoom( MapUtils.BathroomZoomLevel )
+                .target( new LatLng( parkLocation.getLatitude(), parkLocation.getLongitude() ) )
+                .zoom( MapUtils.MarkerZoomLevel )
                 .build();
-        map.animateCamera( CameraUpdateFactory.newCameraPosition(cameraPosition), 1000, null );
+        map.animateCamera( CameraUpdateFactory.newCameraPosition( cameraPosition ), 1000, null );
+    }
+
+    public static void focusOnMarkerLocation(GoogleMap map, LatLng parkLocation)
+    {
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target( new LatLng( parkLocation.latitude, parkLocation.longitude ) )
+                .zoom( MapUtils.MarkerZoomLevel )
+                .build();
+        map.animateCamera( CameraUpdateFactory.newCameraPosition( cameraPosition ), 1000, null );
     }
 
     public static void focusOnCurrentLocation( GoogleMap map, Location currentLocation )

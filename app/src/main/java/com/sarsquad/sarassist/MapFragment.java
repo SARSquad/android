@@ -2,13 +2,13 @@ package com.sarsquad.sarassist;
 
 
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,14 +19,19 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Places;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link BlankFragment#newInstance} factory method to
+ * Use the {@link MapFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class BlankFragment extends Fragment {
+public class MapFragment extends Fragment {
 
     public static Location mLastKnownLocation;
     public static Location newLocation;
@@ -43,10 +48,13 @@ public class BlankFragment extends Fragment {
     private LocationManager locationManager;
     private LocationRequest mLocationRequest;
 
+    private MapView mapView;
+    private GoogleMap googleMap;
+
 
     // TODO: Rename and change types and number of parameters
-    public static BlankFragment newInstance(Location location, BlockRow blockRow) {
-        BlankFragment fragment = new BlankFragment();
+    public static MapFragment newInstance(Location location, BlockRow blockRow) {
+        MapFragment fragment = new MapFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         userLocation = location;
@@ -55,7 +63,7 @@ public class BlankFragment extends Fragment {
         return fragment;
     }
 
-    public BlankFragment() {
+    public MapFragment() {
         // Required empty public constructor
     }
 
@@ -72,7 +80,9 @@ public class BlankFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_blank, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_map, container, false);
+
+        initializeMap(rootView,savedInstanceState);
 
         if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
             AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
@@ -102,7 +112,7 @@ public class BlankFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        stopLocationUpdates();
+        //stopLocationUpdates();
     }
 
     @Override
@@ -136,6 +146,7 @@ public class BlankFragment extends Fragment {
 
                 startLocationUpdates();
                 if(mLastKnownLocation != null){
+                    MapUtils.focusOnCurrentLocation(googleMap, mLastKnownLocation);
 
                 } else {
                     SARAssist.makeToastShort("Unable to obtain location, please turn on Location Services.");
@@ -168,9 +179,9 @@ public class BlankFragment extends Fragment {
                     MapUtils.focusOnCurrentLocation(googleMap, location);
                     mLastKnownLocation = location;
                     newLocation = location;
-                    getPlaces(location);
-                    getLocale(location);
                 }
+
+                MapUtils.focusOnCurrentLocation(googleMap, location);
 
             }
         };
@@ -190,6 +201,66 @@ public class BlankFragment extends Fragment {
     protected void stopLocationUpdates() {
         LocationServices.FusedLocationApi.removeLocationUpdates(
                 mGoogleApiClient, locationListener);
+    }
+
+    private void initializeMap( View rootViewT, Bundle savedInstanceStateT )
+    {
+        mapView = (MapView) rootViewT.findViewById( R.id.fragment_map );
+        mapView.onCreate(savedInstanceStateT);
+        mapView.onResume();
+
+        try
+        {
+            MapsInitializer.initialize(getActivity().getApplicationContext());
+        }
+        catch( Exception e )
+        {
+            e.printStackTrace();
+        }
+
+        googleMap = mapView.getMap();
+        googleMap.setMyLocationEnabled(true);
+
+        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                MapUtils.focusOnMarkerLocation(googleMap, marker.getPosition());
+                return false;
+            }
+
+        });
+
+        googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                SARAssist.makeToastShort("Info Window Clicked");
+            }
+        });
+
+        //googleMap.setInfoWindowAdapter(new MarkerInfoWindowAdapter(getActivity()));
+        googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+            @Override
+            public View getInfoWindow(Marker marker) {
+                return null;
+            }
+
+            @Override
+            public View getInfoContents(Marker marker) {
+                return null;
+            }
+        });
+
+        googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                //mVibrator.vibrate(200);
+
+                final Location location = new Location("");
+                location.setLatitude(latLng.latitude);
+                location.setLongitude(latLng.longitude);
+
+            }
+        });
     }
 
 

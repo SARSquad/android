@@ -48,7 +48,8 @@
 
         <activity
             android:name=".HomeActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:screenOrientation="locked">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -62,7 +63,8 @@
 
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps" >
+            android:label="@string/title_activity_maps"
+            android:screenOrientation="locked">
         </activity>
     </application>
 
