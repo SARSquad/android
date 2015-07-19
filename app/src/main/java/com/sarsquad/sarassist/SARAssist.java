@@ -21,6 +21,7 @@ public class SARAssist extends Application {
         sContext = this;
 
         ParseObject.registerSubclass(SearchArea.class);
+        ParseObject.registerSubclass(Block.class);
 
         // Enable Local Datastore.
         Parse.enableLocalDatastore(this);

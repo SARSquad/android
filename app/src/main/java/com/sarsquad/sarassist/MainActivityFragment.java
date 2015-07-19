@@ -80,7 +80,12 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 //Navigate to next page
-
+                SARAssist.makeToastShort("Clicked");
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment, BlockFragment.newInstance(searchAreas.get(position), tempLocation))
+                        .addToBackStack("home")
+                        .commit();
             }
         });
 
