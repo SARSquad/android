@@ -4,7 +4,6 @@ package com.sarsquad.sarassist;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -22,8 +21,11 @@ import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+
+import java.util.HashMap;
 
 
 /**
@@ -51,6 +53,7 @@ public class MapFragment extends Fragment {
     private MapView mapView;
     private GoogleMap googleMap;
 
+    HashMap<Marker, Block> hashMapMarker = new HashMap<>();
 
     // TODO: Rename and change types and number of parameters
     public static MapFragment newInstance(Location location, BlockRow blockRow) {
@@ -84,27 +87,10 @@ public class MapFragment extends Fragment {
 
         initializeMap(rootView,savedInstanceState);
 
-        if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
-            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
-            String message = "Please enable location services. Press 'Ok' to go to the location setting page. Pressing 'Cancel' will take you to Today's Workout.";
+        MapUtils.focusOnCurrentLocation(googleMap, userLocation);
 
-            alertBuilder.setMessage(message).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    isOkClicked = true;
-                    Intent gpsOptionsIntent = new Intent(
-                            android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                    startActivity(gpsOptionsIntent);
-                }
-            }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-                    //Navigate to workout screen
-                }
-            });
-            alertBuilder.create().show();
-        }
+        addMarkers();
+
 
         return rootView;
     }
@@ -128,7 +114,6 @@ public class MapFragment extends Fragment {
             @Override
             public void onConnected(Bundle bundle) {
 
-                //MapUtils.focusOnCurrentLocation(googleMap, mLastKnownLocation);
 
                 mLastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
                 if(mLastKnownLocation != null){
@@ -157,13 +142,12 @@ public class MapFragment extends Fragment {
             public void onConnectionSuspended(int i) {
 
             }
-        })
-                .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
-                    @Override
-                    public void onConnectionFailed(ConnectionResult connectionResult) {
+        }).addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
+            @Override
+            public void onConnectionFailed(ConnectionResult connectionResult) {
 
-                    }
-                })
+            }
+        })
                 .addApi(LocationServices.API)
                 .addApi(Places.PLACE_DETECTION_API)
                 .build();
@@ -232,10 +216,29 @@ public class MapFragment extends Fragment {
 
         googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
-            public void onInfoWindowClick(Marker marker) {
-                SARAssist.makeToastShort("Info Window Clicked");
+            public void onInfoWindowClick(final Marker marker) {
+                AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
+                String message = "Check off this location?";
+
+                alertBuilder.setMessage(message).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //save as assigned and set user
+                        setMarkerChecked(marker);
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                alertBuilder.create().show();
+
+
             }
         });
+
+
 
         //googleMap.setInfoWindowAdapter(new MarkerInfoWindowAdapter(getActivity()));
         googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
@@ -261,6 +264,24 @@ public class MapFragment extends Fragment {
 
             }
         });
+    }
+
+    private void setMarkerChecked(Marker marker){
+        marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+        Block tempBlock = hashMapMarker.get(marker);
+        tempBlock.setIsComplete(true);
+        try {
+            tempBlock.save();
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void addMarkers(){
+        for(Block block : blocks.getBlocks()){
+            Marker marker = googleMap.addMarker(block.createMarker());
+            hashMapMarker.put(marker, block);
+        }
     }
 
 

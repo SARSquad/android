@@ -3,8 +3,19 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingBottom="16dp"
+        android:paddingTop="16dp"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Choose a grid to work in:"
+        android:id="@+id/textViewBlockDecription" />
+
     <ListView android:id="@+id/listBlock" android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/textViewBlockDecription"
         android:transcriptMode="alwaysScroll"
         android:divider="@drawable/abc_list_divider_mtrl_alpha"
         android:dividerHeight="1sp"

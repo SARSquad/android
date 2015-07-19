@@ -37,6 +37,8 @@ public final class ParseConsts {
         public static final String Location = "Location";
         public static final String SearchAreaID = "SearchAreaID";
         public static final String AssignedTo = "AssignedTo";
+        public static final String Latitude = "Latitude";
+        public static final String Longitude = "Longitude";
 
 
     }

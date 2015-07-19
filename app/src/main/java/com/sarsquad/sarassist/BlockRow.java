@@ -1,5 +1,7 @@
 package com.sarsquad.sarassist;
 
+import com.parse.ParseUser;
+
 import java.util.ArrayList;
 
 /**
@@ -19,6 +21,21 @@ public class BlockRow {
 
     public Block getItem(int position){
         return blocks.get(position);
+    }
+
+    public ArrayList<Block> getBlocks(){
+        return  blocks;
+    }
+
+    public void setUserBlocks(){
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        for(Block b : blocks){
+            try {
+                b.setAssignedTo(currentUser);
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        }
     }
 
 }

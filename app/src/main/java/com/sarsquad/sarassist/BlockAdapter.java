@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.util.List;
@@ -53,7 +54,15 @@ public class BlockAdapter extends ArrayAdapter<BlockRow> {
 
         if(assignedTo != null) {
 
-            viewHolder.tvAssigne.setText(block.getAssignedTo().getUsername());
+            ParseQuery<ParseUser> query = ParseUser.getQuery();
+            query.whereEqualTo(ParseConsts.ObjectID, block.getAssignedTo().getObjectId());
+            try {
+                List<ParseUser> tempUser = query.find();
+                setName(tempUser.get(0), viewHolder);
+            } catch (Exception e){
+                setName(ParseUser.getCurrentUser(), viewHolder);
+            }
+
             viewHolder.tvDistance.setText(block.getUpdatedAt().toString());
         } else {
             viewHolder.tvAssigne.setText("Not Assigned");
@@ -65,6 +74,9 @@ public class BlockAdapter extends ArrayAdapter<BlockRow> {
 
     }
 
+    private void setName(ParseUser tempUser, ViewHolder viewHolder){
+        viewHolder.tvAssigne.setText(tempUser.getUsername());
+    }
     private static class ViewHolder {
         TextView tvAssigne;
         TextView tvDistance;

@@ -85,6 +85,8 @@ public class MainActivityFragment extends Fragment {
         return view;
     }
 
+
+
     private void getLocation(){
         ParseGeoPoint.getCurrentLocationInBackground(5000, new LocationCallback() {
             @Override

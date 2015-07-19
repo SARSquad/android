@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,11 +75,11 @@ public class BlockFragment extends Fragment {
                 .findInBackground(new FindCallback<Block>() {
                     @Override
                     public void done(List<Block> blocksReturned, ParseException e) {
-                        if(e == null){
+                        if (e == null) {
                             int rowNumber = blocksReturned.get(0).getRow();
                             BlockRow blockRow = new BlockRow();
-                            for(Block block : blocksReturned){
-                                if(rowNumber == block.getRow()){
+                            for (Block block : blocksReturned) {
+                                if (rowNumber == block.getRow()) {
                                     blockRow.addBlock(block);
                                 } else {
                                     rows.add(blockRow);
@@ -116,15 +117,17 @@ public class BlockFragment extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 TextView textView = (TextView) view.findViewById(R.id.tvAssigne);
                 String text = textView.getText().toString();
-                if (text.equals("Not Assigned")) {
+                if ( text.equals("Not Assigned") || text.equals(ParseUser.getCurrentUser().getUsername())){
                     checkNavigate(position);
-                } else {
+                }else{
                     SARAssist.makeToastShort("Already assigned.");
                 }
             }
         });
         return view;
     }
+
+
 
     private void checkNavigate(final int position){
 
@@ -155,6 +158,8 @@ public class BlockFragment extends Fragment {
             alertBuilder.setMessage(message).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    //save as assigned and set user
+                    rows.get(position).setUserBlocks();
                     getActivity().getSupportFragmentManager()
                             .beginTransaction()
                             .replace(R.id.container, MapFragment.newInstance(tempLocation, rows.get(position)))
